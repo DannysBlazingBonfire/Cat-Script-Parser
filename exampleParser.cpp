@@ -58,6 +58,8 @@ PrimaryExp := Int | ( LogExp )
 Int := -?[0-9]+
 */
 
+/*
+
 // Tokenized expression
 std::vector<std::string> tokens =
 { "1","&&","1","<","2","&&","0","||","1","(","1","==","1",")" };
@@ -207,3 +209,4 @@ int main()
 {
     evaluate();
 }
+*/

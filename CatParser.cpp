@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
+#include <fstream>
 
 /*
 C@ Grammar for L6
@@ -50,13 +52,8 @@ output from example:
 
 class Interpreter
 {
-private:
-    const std::vector<std::string> tokens;
-    int position;
-    // Reserved end-of-expression string symbol (ETX = end-of-text in UNICODE)
-    const std::string ETX = "\u0003";
 public:
-    Interpreter(std::ostream& out_stream): position(0), tokens(), ETX("\u0003"){} //constructor
+    Interpreter(std::ostream& out_stream): position(0), tokens(), output_stream(out_stream), ETX("\u0003"){} //constructor
 
     // Return token @steps ahead
     std::string peek(int steps)
@@ -86,11 +83,54 @@ public:
     // Evaluate & interpret one tokenized statement
     void evaluate(const std::vector<std::string>& tokens) //call for every line
     {
-        //start parsing here
+        std::cout << "Evaluating" << std::endl;
     }
+
+private:
+    const std::vector<std::string> tokens;
+    int position;
+    const std::string ETX = "\u0003"; // Reserved end-of-expression string symbol (ETX = end-of-text in UNICODE)
+    std::ostream& output_stream;
 };
+
+
+
+
+
+
+
+
+
 
 int main()
 {
-    Interpreter CatParser();
+    Interpreter catParser();
+    
+    std::string token;
+    std::fstream codeFile;
+    std::vector<std::string> tokens;
+    codeFile.open("catCode.txt", std::ios::in);
+    if (codeFile.is_open()) 
+    {
+        std::string line;
+        while (getline(codeFile, line)) // itterate all lines in file
+        {
+            std::stringstream ss(line);
+            while (ss >> token) //stores token based on whitespace
+            {
+                tokens.push_back(token); //store a line of tokens
+            }
+            
+            //parse line to interpretor here and run evaluate
+
+            tokens.clear(); //clear tokens for next line
+        }
+        codeFile.close();
+    }
+    return 0;
 }
+
+// ToDo:
+// - split code into lines - DONE
+// - split code into tokens - DONE
+// - Call Evaluate for every line of code
