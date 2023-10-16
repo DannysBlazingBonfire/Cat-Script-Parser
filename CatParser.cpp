@@ -95,13 +95,6 @@ private:
 
 
 
-
-
-
-
-
-
-
 int main()
 {
     Interpreter catParser();
