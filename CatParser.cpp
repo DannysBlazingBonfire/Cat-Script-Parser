@@ -53,7 +53,7 @@ output from example:
 class Interpreter
 {
 public:
-    Interpreter(std::ostream& out_stream): position(0), tokens(), output_stream(out_stream), ETX("\u0003"){} //constructor
+    Interpreter(std::ostream& out_stream): position(0), tokens(), output_stream(out_stream), ETX("\u0003"){} // constructor
 
     // Return token @steps ahead
     std::string peek(int steps)
@@ -81,9 +81,14 @@ public:
     }
 
     // Evaluate & interpret one tokenized statement
-    void evaluate(const std::vector<std::string>& tokens) //call for every line
+    void evaluate(const std::vector<std::string>& tokens) // call for every line
     {
-        std::cout << "Evaluating" << std::endl;
+        output_stream << "Evaluating" << std::endl;
+        for (int i = 0; i < tokens.size(); i++)
+        {
+            output_stream << "'" << tokens.at(i) << "' ";
+        }
+        output_stream << std::endl;
     }
 
 private:
@@ -96,9 +101,8 @@ private:
 
 
 int main()
-{
-    Interpreter catParser();
-    
+{   
+    Interpreter catParser(std::cout);
     std::string token;
     std::fstream codeFile;
     std::vector<std::string> tokens;
@@ -109,14 +113,15 @@ int main()
         while (getline(codeFile, line)) // itterate all lines in file
         {
             std::stringstream ss(line);
-            while (ss >> token) //stores token based on whitespace
+            while (ss >> token) // store tokens based on whitespace
             {
-                tokens.push_back(token); //store a line of tokens
+                tokens.push_back(token); // store a line of tokens
             }
             
-            //parse line to interpretor here and run evaluate
+            // parse line to interpretor here and run evaluate
+            catParser.evaluate(tokens);
 
-            tokens.clear(); //clear tokens for next line
+            tokens.clear(); // clear tokens for next line
         }
         codeFile.close();
     }
