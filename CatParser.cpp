@@ -131,4 +131,7 @@ int main()
 // ToDo:
 // - split code into lines - DONE
 // - split code into tokens - DONE
-// - Call Evaluate for every line of code
+// - Call Evaluate for every line of code - DONE
+// - implement Parse logic for all statements - TODO
+// - store variable values in hashmap - TODO
+// - get correct output from parsed code - TODO
