@@ -80,12 +80,53 @@ public:
         ++position;
     }
 
+    bool parsePrimaryExp() {
+        //Kolla ifall int eller variabel eller mathexp i paranteser
+    }
+
+    bool parseProductExp() {
+
+    }
+
+    bool parseSumExp() {
+        parseProductExp();
+    }
+
+    bool parseMathExp() {
+        parseSumExp();
+    }
+
+    bool parsePrintStmt() {
+        parseMathExp();
+    }
+
+    
+
 
     //insert all logic parse methods here!
 
     bool parseStmt()
     {
+        position = 0;
+        while (peek(position) != ETX) {
+            if (peek(position) == "print") {
+                consume("print");
+                parsePrintStmt();
+            }
+            else if (peek(position) == "config") {
+                consume("config");
+            }
+            else if (peek(position) == "=") {
+                consume("=");
+            }
+            else {
+                position++;
+            }
+        }
+        
+ 
         //check if token is of: ConfigStmt | AssgStmt | PrintStmt
+            
         return 0;
     }
 
@@ -139,6 +180,8 @@ int main()
             tokens.clear(); // clear tokens for next line
         }
         codeFile.close();
+
+        
     }
     return 0;
 }
