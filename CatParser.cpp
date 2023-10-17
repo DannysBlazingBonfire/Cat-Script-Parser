@@ -83,20 +83,31 @@ public:
 
     //insert all logic parse methods here!
 
+    bool parseStmt()
+    {
+        //check if token is of: ConfigStmt | AssgStmt | PrintStmt
+        return 0;
+    }
+
 
     // Evaluate & interpret one tokenized statement
     void evaluate(const std::vector<std::string>& tokens) // call for every line
     {
+        this->tokens = tokens;
+        parseStmt();
+
+        /*
         output_stream << "Evaluating" << std::endl;
         for (int i = 0; i < tokens.size(); i++)
         {
             output_stream << "'" << tokens.at(i) << "' ";
         }
         output_stream << std::endl;
+        */
     }
 
 private:
-    const std::vector<std::string> tokens;
+    std::vector<std::string> tokens;
     int position;
     const std::string ETX = "\u0003"; // Reserved end-of-expression string symbol (ETX = end-of-text in UNICODE)
     std::ostream& output_stream;
