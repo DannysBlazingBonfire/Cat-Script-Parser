@@ -139,3 +139,17 @@ int main()
 // - implement Parse logic for all statements - TODO
 // - store variable values in hashmap - TODO
 // - get correct output from parsed code - TODO
+
+
+//Tips:
+
+// - The <regex> header provides functionality for regular expression matching –
+// - see e.g.std::regex and std::regex_match.
+// - Regular expressions can also be matched by checking each char of the string
+// - manually.The isdigit(char) and isalpha(char) functions may be of
+// - help here.
+// - Stream std::hex to an ostream(using << ) to have it print integers in
+// - hexadecimal base.Note that this only works for positive integers.
+// - Stream std::showbase to include a base prefix, e.g. 0x.
+// - Convert an int to a binary representation and then to string :
+// - std::bitset<32>(int).to_string()
