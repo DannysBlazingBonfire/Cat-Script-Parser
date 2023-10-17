@@ -80,6 +80,10 @@ public:
         ++position;
     }
 
+
+    //insert all logic parse methods here!
+
+
     // Evaluate & interpret one tokenized statement
     void evaluate(const std::vector<std::string>& tokens) // call for every line
     {
