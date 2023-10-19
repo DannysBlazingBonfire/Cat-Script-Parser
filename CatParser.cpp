@@ -80,12 +80,14 @@ public:
         ++position;
     }
 
-    bool parsePrimaryExp() {
+    int parsePrimaryExp() {
         //Kolla ifall int eller variabel eller mathexp i paranteser
+
+        return 0;
     }
 
     bool parseProductExp() {
-        bool result = parsePrimaryExp();
+        int result = parsePrimaryExp();
 
         std::string next_token = peek();
 
@@ -112,7 +114,7 @@ public:
 
     bool parseSumExp() {
 
-        bool result = parseProductExp();
+        int result = parseProductExp();
 
         std::string next_token = peek();
 
