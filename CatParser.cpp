@@ -3,7 +3,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-
+#include <regex>
 /*
 C@ Grammar for L6
 Stmt:= ConfigStmt | AssgStmt | PrintStmt
@@ -13,9 +13,9 @@ PrintStmt := print MathExp - DONE
 MathExp := SumExp - DONE
 SumExp := ProductExp [ + ProductExp | – ProductExp ]* - DONE
 ProductExp := PrimaryExp [ * PrimaryExp | / PrimaryExp ]* - DONE
-PrimaryExp := Int | Variable | ( MathExp )
-Variable := [a-zA-z][a-zA-z0-9]*
-Int := -?[0-9]+
+PrimaryExp := Int | Variable | ( MathExp ) DONE
+Variable := [a-zA-z][a-zA-z0-9]* DONE
+Int := -?[0-9]+ DONE
 */
 
 /*
@@ -82,8 +82,52 @@ public:
 
     int parsePrimaryExp() {
         //Kolla ifall int eller variabel eller mathexp i paranteser
+        int value;
+        std::string next_token = peek();
+        // Number
+        while (1) {
+            if (is_int(next_token))
+            {
+                value = std::stoi(next_token);
+                consume(next_token);
+            }
+            else if (is_variable(next_token)) {
+                value = std::stoi(next_token);
+                consume(next_token);
+            }
+            else if (next_token == "(")
+            {
+                consume("(");
+                value = parseMathExp();
+                if (peek() == ")")
+                    consume(")");
+                else
+                    throw std::runtime_error("Expected: )\n");
+            }
+            // No valid PrimaryExp found, which is an error
+            else {
+                throw std::runtime_error("expected int or ( )");
+                break;
+            }
+            next_token = peek();
+        }
+        return value;
+    }
 
-        return 0;
+    bool is_int(const std::string& token)
+    {
+        for (char c : token) {
+            if (!std::isdigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool is_variable(const std::string& token) {
+        std::regex pattern("^[a-zA-Z_][a-zA-Z0-9_]*$");
+
+        return std::regex_match(token, pattern);
     }
 
     bool parseProductExp() {
@@ -147,6 +191,37 @@ public:
         return parseMathExp();
     }
 
+    bool parseConfigStmt() {
+        std::string next_token = peek();
+        bool result = false;
+        std::cout << "Fart";
+        while (1)
+        {
+            if (next_token == "dec")
+            {
+                consume("dec");
+                result = true;
+                
+            }
+            else if (next_token == "hex")
+            {
+                consume("hex");
+                result = true;
+                
+            }
+            else if (next_token == "bin")
+            {
+                consume("bin");
+                result = true;
+            }
+            else {
+                break;
+            }
+            next_token = peek();
+        }
+        return result;
+   }
+
     //insert all logic parse methods here!
 
     bool parseStmt()
@@ -158,10 +233,10 @@ public:
             if (next_token == "print") {
                 consume("print");
                 result = parsePrintStmt();
-                return result;
             }
             else if (next_token == "config") {
                 consume("config");
+                result = parseConfigStmt();
             }
             else if (next_token == "=") { //change this one
                 consume("=");
@@ -170,6 +245,12 @@ public:
                 break;
             }
             next_token = peek();
+        }
+        if (result) {
+            std::cout << "success!";
+        }
+        else {
+            std::cout << "Fail!!";
         }
         return (bool)result;
     }
