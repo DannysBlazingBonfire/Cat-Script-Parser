@@ -4,6 +4,7 @@ print 3 + 3 * 3
 print ( 3 + 3 ) * 3
 x = 2 - -2
 y = x
+x = 0
 z = y * ( 16 / ( y - 2 ) )
 print x
 print y

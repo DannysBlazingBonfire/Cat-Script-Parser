@@ -120,7 +120,7 @@ public:
             consume(next_token);
         }
         else if (is_variable(next_token)) {
-            value = 1;
+            value = 1; //fetch value from variable in hashmap???
             consume(next_token);
         }
         else if (next_token == "(")
@@ -191,6 +191,13 @@ public:
             }
             next_token = peek();
         }
+
+        //probably save value in hashmap here
+
+        if (result == 0) // if value is 0
+        {
+            return (bool)!result;
+        }
         return (bool)result;
     }
 
@@ -245,7 +252,7 @@ public:
         return result;
     }
 
-    bool parseStmt() // "y" "=" ->"x"
+    bool parseStmt() // "x" "=" "0"
     {
         bool result = false;
         std::string next_token = peek();
