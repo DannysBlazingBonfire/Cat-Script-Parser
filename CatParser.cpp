@@ -4,16 +4,17 @@
 #include <sstream>
 #include <fstream>
 #include <regex>
+#include <math.h>
 /*
 C@ Grammar for L6
 Stmt:= ConfigStmt | AssgStmt | PrintStmt
-ConfigStmt:= config [ dec | hex | bin ]
+ConfigStmt:= config [ dec | hex | bin ] - DONE
 AssgStmt:= Variable = MathExp
 PrintStmt := print MathExp - DONE
 MathExp := SumExp - DONE
 SumExp := ProductExp [ + ProductExp | – ProductExp ]* - DONE
 ProductExp := PrimaryExp [ * PrimaryExp | / PrimaryExp ]* - DONE
-PrimaryExp := Int | Variable | ( MathExp ) DONE
+PrimaryExp := Int | Variable | ( MathExp )
 Variable := [a-zA-z][a-zA-z0-9]* DONE
 Int := -?[0-9]+ DONE
 */
@@ -80,12 +81,12 @@ public:
         ++position;
     }
 
-    int parsePrimaryExp() {
+    int parsePrimaryExp() //debug this method
+    {
         //Kolla ifall int eller variabel eller mathexp i paranteser
         int value;
         std::string next_token = peek();
         // Number
-        while (1) {
             if (is_int(next_token))
             {
                 value = std::stoi(next_token);
@@ -105,22 +106,32 @@ public:
                     throw std::runtime_error("Expected: )\n");
             }
             // No valid PrimaryExp found, which is an error
-            else {
+            else 
+            {
                 throw std::runtime_error("expected int or ( )");
-                break;
             }
-            next_token = peek();
-        }
         return value;
     }
 
     bool is_int(const std::string& token)
     {
-        for (char c : token) {
-            if (!std::isdigit(c)) {
+        // Check if the string is empty or starts with a '-' sign.
+        if (token.empty()) {
+            return false;
+        }
+
+        // Skip the '-' sign if it's present.
+        size_t start = 0;
+        if (token[0] == '-') {
+            start = 1;
+        }
+
+        for (size_t i = start; i < token.size(); i++) {
+            if (!std::isdigit(token[i])) {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -194,7 +205,6 @@ public:
     bool parseConfigStmt() {
         std::string next_token = peek();
         bool result = false;
-        std::cout << "Fart";
         while (1)
         {
             if (next_token == "dec")
@@ -222,6 +232,18 @@ public:
         return result;
    }
 
+    bool parseAssgStmt()
+    {
+        std::string next_token = peek();
+        bool result = false;
+
+        if (next_token == "=")
+        {
+            consume("=");
+            result = parseMathExp();
+        }
+        return result;
+    }
     //insert all logic parse methods here!
 
     bool parseStmt()
@@ -238,12 +260,14 @@ public:
                 consume("config");
                 result = parseConfigStmt();
             }
-            else if (next_token == "=") { //change this one
-                consume("=");
+            else if (is_variable(next_token)) {
+                consume(next_token);
+                result = parseAssgStmt();
             }
             else {
                 break;
             }
+
             next_token = peek();
         }
         if (result) {
