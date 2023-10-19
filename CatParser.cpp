@@ -12,7 +12,7 @@ AssgStmt:= Variable = MathExp
 PrintStmt := print MathExp - DONE
 MathExp := SumExp - DONE
 SumExp := ProductExp [ + ProductExp | – ProductExp ]* - DONE
-ProductExp := PrimaryExp [ * PrimaryExp | / PrimaryExp ]*
+ProductExp := PrimaryExp [ * PrimaryExp | / PrimaryExp ]* - DONE
 PrimaryExp := Int | Variable | ( MathExp )
 Variable := [a-zA-z][a-zA-z0-9]*
 Int := -?[0-9]+
@@ -85,9 +85,29 @@ public:
     }
 
     bool parseProductExp() {
+        bool result = parsePrimaryExp();
 
+        std::string next_token = peek();
 
-        return false;
+        while (1)
+        {
+            if (next_token == "*")
+            {
+                consume("*");
+                result = (result * parsePrimaryExp());
+            }
+            else if (next_token == "/")
+            {
+                consume("/");
+                result = (result / parsePrimaryExp());
+            }
+            else
+            {
+                break;
+            }
+            next_token = peek();
+        }
+        return (bool)result;
     }
 
     bool parseSumExp() {
@@ -129,12 +149,14 @@ public:
 
     bool parseStmt()
     {
+        bool result;
         std::string next_token = peek();
 
         while (next_token != ETX) { // check if token is of: ConfigStmt | AssgStmt | PrintStmt
             if (next_token == "print") {
                 consume("print");
-                return parsePrintStmt();
+                result = parsePrintStmt();
+                return result;
             }
             else if (next_token == "config") {
                 consume("config");
@@ -147,6 +169,7 @@ public:
             }
             next_token = peek();
         }
+        return (bool)result;
     }
 
     // Evaluate & interpret one tokenized statement
