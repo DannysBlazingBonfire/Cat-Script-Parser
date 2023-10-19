@@ -149,7 +149,7 @@ public:
 
     bool parseStmt()
     {
-        bool result;
+        bool result = false;
         std::string next_token = peek();
 
         while (next_token != ETX) { // check if token is of: ConfigStmt | AssgStmt | PrintStmt
