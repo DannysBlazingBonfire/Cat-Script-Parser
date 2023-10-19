@@ -4,7 +4,6 @@
 #include <sstream>
 #include <fstream>
 #include <regex>
-#include <math.h>
 /*
 C@ Grammar for L6
 Stmt:= ConfigStmt | AssgStmt | PrintStmt
