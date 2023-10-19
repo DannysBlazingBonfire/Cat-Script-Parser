@@ -9,9 +9,9 @@ C@ Grammar for L6
 Stmt:= ConfigStmt | AssgStmt | PrintStmt
 ConfigStmt:= config [ dec | hex | bin ]
 AssgStmt:= Variable = MathExp
-PrintStmt := print MathExp
-MathExp := SumExp
-SumExp := ProductExp [ + ProductExp | – ProductExp ]*
+PrintStmt := print MathExp - DONE
+MathExp := SumExp - DONE
+SumExp := ProductExp [ + ProductExp | – ProductExp ]* - DONE
 ProductExp := PrimaryExp [ * PrimaryExp | / PrimaryExp ]*
 PrimaryExp := Int | Variable | ( MathExp )
 Variable := [a-zA-z][a-zA-z0-9]*
@@ -86,54 +86,73 @@ public:
 
     bool parseProductExp() {
 
+
+        return false;
     }
 
     bool parseSumExp() {
-        parseProductExp();
+
+        bool result = parseProductExp();
+
+        std::string next_token = peek();
+
+        while (1)
+        {
+            if (next_token == "+")
+            {
+                consume("+");
+                result = (result + parseProductExp());
+            }
+            else if (next_token == "-")
+            {
+                consume("-");
+                result = (result - parseProductExp());
+            }
+            else
+            {
+                break;
+            }
+            next_token = peek();
+        }
+        return (bool)result;
     }
 
     bool parseMathExp() {
-        parseSumExp();
+        return parseSumExp();
     }
 
     bool parsePrintStmt() {
-        parseMathExp();
+        return parseMathExp();
     }
-
-    
-
 
     //insert all logic parse methods here!
 
     bool parseStmt()
     {
-        position = 0;
-        while (peek(position) != ETX) {
-            if (peek(position) == "print") {
+        std::string next_token = peek();
+
+        while (next_token != ETX) { // check if token is of: ConfigStmt | AssgStmt | PrintStmt
+            if (next_token == "print") {
                 consume("print");
-                parsePrintStmt();
+                return parsePrintStmt();
             }
-            else if (peek(position) == "config") {
+            else if (next_token == "config") {
                 consume("config");
             }
-            else if (peek(position) == "=") {
+            else if (next_token == "=") { //change this one
                 consume("=");
             }
             else {
-                position++;
+                break;
             }
+            next_token = peek();
         }
-        
- 
-        //check if token is of: ConfigStmt | AssgStmt | PrintStmt
-            
-        return 0;
     }
-
 
     // Evaluate & interpret one tokenized statement
     void evaluate(const std::vector<std::string>& tokens) // call for every line
     {
+        this->position = 0;
         this->tokens = tokens;
         parseStmt();
 
@@ -173,15 +192,10 @@ int main()
             {
                 tokens.push_back(token); // store a line of tokens
             }
-            
-            // parse line to interpretor here and run evaluate
-            catParser.evaluate(tokens);
-
+            catParser.evaluate(tokens); //parse tokens for every line
             tokens.clear(); // clear tokens for next line
         }
         codeFile.close();
-
-        
     }
     return 0;
 }
