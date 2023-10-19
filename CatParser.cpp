@@ -81,58 +81,24 @@ public:
         ++position;
     }
 
-    int parsePrimaryExp() //debug this method
-    {
-        //Kolla ifall int eller variabel eller mathexp i paranteser
-        int value;
-        std::string next_token = peek();
-        // Number
-            if (is_int(next_token))
-            {
-                value = std::stoi(next_token);
-                consume(next_token);
-            }
-            else if (is_variable(next_token)) {
-                value = std::stoi(next_token);
-                consume(next_token);
-            }
-            else if (next_token == "(")
-            {
-                consume("(");
-                value = parseMathExp();
-                if (peek() == ")")
-                    consume(")");
-                else
-                    throw std::runtime_error("Expected: )\n");
-            }
-            // No valid PrimaryExp found, which is an error
-            else 
-            {
-                throw std::runtime_error("expected int or ( )");
-            }
-        return value;
-    }
-
     bool is_int(const std::string& token)
     {
+        bool test = true;
         // Check if the string is empty or starts with a '-' sign.
         if (token.empty()) {
-            return false;
+            test = false;
         }
-
         // Skip the '-' sign if it's present.
         size_t start = 0;
         if (token[0] == '-') {
             start = 1;
         }
-
         for (size_t i = start; i < token.size(); i++) {
             if (!std::isdigit(token[i])) {
-                return false;
+                test = false;
             }
         }
-
-        return true;
+        return test;
     }
 
     bool is_variable(const std::string& token) {
@@ -141,11 +107,46 @@ public:
         return std::regex_match(token, pattern);
     }
 
-    bool parseProductExp() {
-        int result = parsePrimaryExp();
-
+    int parsePrimaryExp() //debug this method
+    {
+        //Kolla ifall int eller variabel eller mathexp i paranteser
+        int value = 0;
         std::string next_token = peek();
 
+        // Number
+        if (is_int(next_token))
+        {
+            value = std::stoi(next_token);
+            consume(next_token);
+        }
+        else if (is_variable(next_token)) {
+            value = 1;
+            consume(next_token);
+        }
+        else if (next_token == "(")
+        {
+            consume("(");
+            value = parseMathExp();
+            if (peek() == ")")
+            {
+                consume(")");
+            }
+            else
+            {
+                throw std::runtime_error("Expected: )\n");
+            }            
+        }
+        // No valid PrimaryExp found, which is an error
+        else 
+        {
+            throw std::runtime_error("expected int or ( )");
+        }
+        return value;
+    }
+
+    int parseProductExp() {
+        int result = parsePrimaryExp();
+        std::string next_token = peek();
         while (1)
         {
             if (next_token == "*")
@@ -164,7 +165,7 @@ public:
             }
             next_token = peek();
         }
-        return (bool)result;
+        return result;
     }
 
     bool parseSumExp() {
@@ -172,7 +173,6 @@ public:
         int result = parseProductExp();
 
         std::string next_token = peek();
-
         while (1)
         {
             if (next_token == "+")
@@ -244,9 +244,8 @@ public:
         }
         return result;
     }
-    //insert all logic parse methods here!
 
-    bool parseStmt()
+    bool parseStmt() // "y" "=" ->"x"
     {
         bool result = false;
         std::string next_token = peek();
@@ -271,10 +270,10 @@ public:
             next_token = peek();
         }
         if (result) {
-            std::cout << "success!";
+            std::cout << "success!" << std::endl;
         }
         else {
-            std::cout << "Fail!!";
+            std::cout << "Fail!" << std::endl;
         }
         return (bool)result;
     }
