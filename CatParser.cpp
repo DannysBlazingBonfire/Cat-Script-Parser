@@ -107,13 +107,10 @@ public:
         return std::regex_match(token, pattern);
     }
 
-    int parsePrimaryExp() //debug this method
+    int parsePrimaryExp()
     {
-        //Kolla ifall int eller variabel eller mathexp i paranteser
         int value = 0;
         std::string next_token = peek();
-
-        // Number
         if (is_int(next_token))
         {
             value = std::stoi(next_token);
@@ -123,21 +120,11 @@ public:
             
             value = symbolTable.at(next_token);
             consume(next_token);
-
-            /*
-            // Fetch the value from your hashmap or symbol table (replace with your actual lookup mechanism)
-            if (variable_map.find(variable_name) != variable_map.end()) {
-                value = variable_map[variable_name];
-            }
-            else {
-                throw std::runtime_error("Undefined variable: " + variable_name);
-            }
-            */
         }
         else if (next_token == "(")
         {
             consume("(");
-            value = parseMathExp(); // bool instead of value???
+            value = parseMathExp();
             if (peek() == ")")
             {
                 consume(")");
@@ -180,9 +167,7 @@ public:
     }
 
     int parseSumExp() {
-
         int result = parseProductExp();
-
         std::string next_token = peek();
         while (1)
         {
@@ -260,7 +245,6 @@ public:
     {
         std::string next_token = peek();
         bool result = false;
-
         if (next_token == "=")
         {
             consume("=");
@@ -273,7 +257,6 @@ public:
     {
         bool result = false;
         std::string next_token = peek();
-
         while (next_token != ETX) { // check if token is of: ConfigStmt | AssgStmt | PrintStmt
             tempSymbol = "";
             if (next_token == "print") {
@@ -299,15 +282,6 @@ public:
 
             next_token = peek();
         }
-
-        /*
-        if (result) {
-            std::cout << "success!" << std::endl;
-        }
-        else {
-            std::cout << "Fail!" << std::endl;
-        }
-        */
         return (bool)result;
     }
 
@@ -327,9 +301,6 @@ private:
     std::unordered_map<std::string, int> symbolTable;
     std::string tempSymbol;
 };
-
-// "print" ->"y"
-// tempSymbol
 
 int main()
 {   
@@ -361,7 +332,7 @@ int main()
 // - split code into tokens - DONE
 // - Call Evaluate for every line of code - DONE
 // - implement Parse logic for all statements - DONE
-// - store variable values in hashmap - TODO
+// - store variable values in hashmap - DONE
 // - get correct output from parsed code - TODO
 // - Throw correct errors - TODO
 
