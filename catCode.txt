@@ -8,7 +8,3 @@ z = y * ( 16 / ( y - 2 ) )
 print x
 print y
 print z
-config hex
-print z
-config bin
-print z

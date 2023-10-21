@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <regex>
+#include <unordered_map>
 /*
 C@ Grammar for L6
 Stmt:= ConfigStmt | AssgStmt | PrintStmt
@@ -119,13 +120,24 @@ public:
             consume(next_token);
         }
         else if (is_variable(next_token)) {
-            value = 1; //fetch value from variable in hashmap???
+            
+            value = symbolTable.at(next_token);
             consume(next_token);
+
+            /*
+            // Fetch the value from your hashmap or symbol table (replace with your actual lookup mechanism)
+            if (variable_map.find(variable_name) != variable_map.end()) {
+                value = variable_map[variable_name];
+            }
+            else {
+                throw std::runtime_error("Undefined variable: " + variable_name);
+            }
+            */
         }
         else if (next_token == "(")
         {
             consume("(");
-            value = parseMathExp();
+            value = parseMathExp(); // bool instead of value???
             if (peek() == ")")
             {
                 consume(")");
@@ -167,7 +179,7 @@ public:
         return result;
     }
 
-    bool parseSumExp() {
+    int parseSumExp() {
 
         int result = parseProductExp();
 
@@ -190,25 +202,31 @@ public:
             }
             next_token = peek();
         }
+        return result;
+    }
 
-        //probably save value in hashmap here
-
-        if (result == 0) // if value is 0
+    int parseMathExp() 
+    {
+        int result = parseSumExp();
+        if (result == 0)
         {
+            symbolTable[tempSymbol] = result;
             return (bool)!result;
         }
-        return (bool)result;
+        if ((bool)result)
+        {
+            symbolTable[tempSymbol] = result;
+        }
+        return result;
     }
 
-    bool parseMathExp() {
-        return parseSumExp();
+    bool parsePrintStmt() 
+    {
+        return (bool)parseMathExp();
     }
 
-    bool parsePrintStmt() {
-        return parseMathExp();
-    }
-
-    bool parseConfigStmt() {
+    bool parseConfigStmt() 
+    {
         std::string next_token = peek();
         bool result = false;
         while (1)
@@ -246,26 +264,32 @@ public:
         if (next_token == "=")
         {
             consume("=");
-            result = parseMathExp();
+            result = (bool)parseMathExp();
         }
         return result;
     }
 
-    bool parseStmt() // "x" "=" "0"
+    bool parseStmt()
     {
         bool result = false;
         std::string next_token = peek();
 
         while (next_token != ETX) { // check if token is of: ConfigStmt | AssgStmt | PrintStmt
+            tempSymbol = "";
             if (next_token == "print") {
                 consume("print");
                 result = parsePrintStmt();
+                if (result)
+                {
+                    output_stream << symbolTable.at(tempSymbol) << std::endl;
+                }
             }
             else if (next_token == "config") {
                 consume("config");
                 result = parseConfigStmt();
             }
             else if (is_variable(next_token)) {
+                tempSymbol = next_token;
                 consume(next_token);
                 result = parseAssgStmt();
             }
@@ -275,12 +299,15 @@ public:
 
             next_token = peek();
         }
+
+        /*
         if (result) {
             std::cout << "success!" << std::endl;
         }
         else {
             std::cout << "Fail!" << std::endl;
         }
+        */
         return (bool)result;
     }
 
@@ -290,15 +317,6 @@ public:
         this->position = 0;
         this->tokens = tokens;
         parseStmt();
-
-        /*
-        output_stream << "Evaluating" << std::endl;
-        for (int i = 0; i < tokens.size(); i++)
-        {
-            output_stream << "'" << tokens.at(i) << "' ";
-        }
-        output_stream << std::endl;
-        */
     }
 
 private:
@@ -306,9 +324,12 @@ private:
     int position;
     const std::string ETX = "\u0003"; // Reserved end-of-expression string symbol (ETX = end-of-text in UNICODE)
     std::ostream& output_stream;
+    std::unordered_map<std::string, int> symbolTable;
+    std::string tempSymbol;
 };
 
-
+// "print" ->"y"
+// tempSymbol
 
 int main()
 {   
@@ -339,9 +360,10 @@ int main()
 // - split code into lines - DONE
 // - split code into tokens - DONE
 // - Call Evaluate for every line of code - DONE
-// - implement Parse logic for all statements - TODO
+// - implement Parse logic for all statements - DONE
 // - store variable values in hashmap - TODO
 // - get correct output from parsed code - TODO
+// - Throw correct errors - TODO
 
 
 //Tips:
