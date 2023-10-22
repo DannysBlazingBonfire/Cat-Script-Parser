@@ -16,7 +16,7 @@ MathExp := SumExp
 SumExp := ProductExp [ + ProductExp | – ProductExp ]*
 ProductExp := PrimaryExp [ * PrimaryExp | / PrimaryExp ]*
 PrimaryExp := Int | Variable | ( MathExp )
-Variable := [a-zA-z][a-zA-z0-9]* DONE
+Variable := [a-zA-z][a-zA-z0-9]*
 Int := -?[0-9]+ 
 */
 
