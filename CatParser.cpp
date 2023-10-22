@@ -5,7 +5,7 @@
 #include <fstream>
 #include <regex>
 #include <unordered_map>
-#include<bitset>
+#include <bitset>
 /*
 C@ Grammar for L6
 Stmt:= ConfigStmt | AssgStmt | PrintStmt
