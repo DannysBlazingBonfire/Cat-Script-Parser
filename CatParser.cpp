@@ -5,70 +5,58 @@
 #include <fstream>
 #include <regex>
 #include <unordered_map>
+#include<bitset>
 /*
 C@ Grammar for L6
 Stmt:= ConfigStmt | AssgStmt | PrintStmt
-ConfigStmt:= config [ dec | hex | bin ] - DONE
+ConfigStmt:= config [ dec | hex | bin ]
 AssgStmt:= Variable = MathExp
-PrintStmt := print MathExp - DONE
-MathExp := SumExp - DONE
-SumExp := ProductExp [ + ProductExp | – ProductExp ]* - DONE
-ProductExp := PrimaryExp [ * PrimaryExp | / PrimaryExp ]* - DONE
+PrintStmt := print MathExp
+MathExp := SumExp
+SumExp := ProductExp [ + ProductExp | – ProductExp ]*
+ProductExp := PrimaryExp [ * PrimaryExp | / PrimaryExp ]*
 PrimaryExp := Int | Variable | ( MathExp )
 Variable := [a-zA-z][a-zA-z0-9]* DONE
-Int := -?[0-9]+ DONE
-*/
-
-/*
-Example of code in file:
-
-config dec
-print 1 + 1
-print 3 + 3 * 3
-print ( 3 + 3 ) * 3
-x = 2 - -2
-y = x
-z = y * ( 16 / ( y - 2 ) )
-print x
-print y
-print z
-config hex
-print z
-config bin
-print z
-*/
-
-/*
-output from example:
-
-2
-12
-18
-4
-4
-32
-0x20
-0000000000100000
+Int := -?[0-9]+ 
 */
 
 class Interpreter
 {
 public:
     Interpreter(std::ostream& out_stream): position(0), tokens(), output_stream(out_stream), ETX("\u0003"){} // constructor
-
+    enum printModes
+    {
+        dec = 1,
+        hex = 2,
+        bin = 3
+    };
+    void print() const
+    {
+        switch (printmode) {
+        case dec:
+            output_stream << symbolTable.at(tempSymbol) << std::endl;
+            break;
+        case hex:
+            output_stream << std::hex << "0x" << symbolTable.at(tempSymbol) << std::endl;
+            break;
+        case bin:
+            output_stream << std::bitset<16>(symbolTable.at(tempSymbol)).to_string() << std::endl;
+            break;
+        default:
+            output_stream << symbolTable.at(tempSymbol) << std::endl;
+        }
+    }
     // Return token @steps ahead
     std::string peek(int steps)
     {
         if (position + steps >= tokens.size()) return ETX;
         return tokens[position + steps];
     }
-
     // Return current token
     std::string peek()
     {
         return peek(0);
     }
-
     // Advance to the next token.
     // @token is a safeguard to make sure the caller knows what is being consumed.
     void consume(const std::string& token)
@@ -80,7 +68,6 @@ public:
             throw std::runtime_error("Could not consume token " + token + "\n");
         ++position;
     }
-
     bool is_int(const std::string& token)
     {
         bool test = true;
@@ -100,13 +87,11 @@ public:
         }
         return test;
     }
-
     bool is_variable(const std::string& token) {
         std::regex pattern("^[a-zA-Z_][a-zA-Z0-9_]*$");
 
         return std::regex_match(token, pattern);
     }
-
     int parsePrimaryExp()
     {
         int value = 0;
@@ -141,7 +126,6 @@ public:
         }
         return value;
     }
-
     int parseProductExp() {
         int result = parsePrimaryExp();
         std::string next_token = peek();
@@ -165,7 +149,6 @@ public:
         }
         return result;
     }
-
     int parseSumExp() {
         int result = parseProductExp();
         std::string next_token = peek();
@@ -189,7 +172,6 @@ public:
         }
         return result;
     }
-
     int parseMathExp() 
     {
         int result = parseSumExp();
@@ -204,12 +186,10 @@ public:
         }
         return result;
     }
-
     bool parsePrintStmt() 
     {
         return (bool)parseMathExp();
     }
-
     bool parseConfigStmt() 
     {
         std::string next_token = peek();
@@ -219,18 +199,20 @@ public:
             if (next_token == "dec")
             {
                 consume("dec");
+                printmode = dec;
                 result = true;
                 
             }
             else if (next_token == "hex")
             {
                 consume("hex");
+                printmode = hex;
                 result = true;
-                
             }
             else if (next_token == "bin")
             {
                 consume("bin");
+                printmode = bin;
                 result = true;
             }
             else {
@@ -240,7 +222,6 @@ public:
         }
         return result;
    }
-
     bool parseAssgStmt()
     {
         std::string next_token = peek();
@@ -252,7 +233,6 @@ public:
         }
         return result;
     }
-
     bool parseStmt()
     {
         bool result = false;
@@ -264,7 +244,7 @@ public:
                 result = parsePrintStmt();
                 if (result)
                 {
-                    output_stream << symbolTable.at(tempSymbol) << std::endl;
+                    print();
                 }
             }
             else if (next_token == "config") {
@@ -279,12 +259,10 @@ public:
             else {
                 break;
             }
-
             next_token = peek();
         }
         return (bool)result;
     }
-
     // Evaluate & interpret one tokenized statement
     void evaluate(const std::vector<std::string>& tokens) // call for every line
     {
@@ -292,7 +270,6 @@ public:
         this->tokens = tokens;
         parseStmt();
     }
-
 private:
     std::vector<std::string> tokens;
     int position;
@@ -300,8 +277,8 @@ private:
     std::ostream& output_stream;
     std::unordered_map<std::string, int> symbolTable;
     std::string tempSymbol;
+    printModes printmode = dec;
 };
-
 int main()
 {   
     Interpreter catParser(std::cout);
@@ -326,26 +303,3 @@ int main()
     }
     return 0;
 }
-
-// ToDo:
-// - split code into lines - DONE
-// - split code into tokens - DONE
-// - Call Evaluate for every line of code - DONE
-// - implement Parse logic for all statements - DONE
-// - store variable values in hashmap - DONE
-// - get correct output from parsed code - TODO
-// - Throw correct errors - TODO
-
-
-//Tips:
-
-// - The <regex> header provides functionality for regular expression matching –
-// - see e.g.std::regex and std::regex_match.
-// - Regular expressions can also be matched by checking each char of the string
-// - manually.The isdigit(char) and isalpha(char) functions may be of
-// - help here.
-// - Stream std::hex to an ostream(using << ) to have it print integers in
-// - hexadecimal base.Note that this only works for positive integers.
-// - Stream std::showbase to include a base prefix, e.g. 0x.
-// - Convert an int to a binary representation and then to string :
-// - std::bitset<32>(int).to_string()
